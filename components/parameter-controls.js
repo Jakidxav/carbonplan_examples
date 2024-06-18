@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { Box, Flex } from 'theme-ui'
 import { Slider, Badge, Toggle, Select, Link } from '@carbonplan/components'
 import { colormaps } from '@carbonplan/colormaps'
@@ -23,28 +24,32 @@ const DEFAULT_COLORMAPS = {
 }
 
 const ParameterControls = ({ getters, setters }) => {
-  const { 
-    display, 
-    debug, 
-    opacity, 
-    clim, 
-    // month, 
-    variable, 
-    colormapName } = getters
-  
+  const {
+    display,
+    opacity,
+    variable,
+    clim,
+    colormapName
+  } = getters
+
   const {
     setDisplay,
-    setDebug,
     setOpacity,
-    setClim,
-    // setMonth,
     setVariable,
+    setClim,
     setColormapName,
   } = setters
 
+  const handleVariableChange = useCallback((event) => {
+    const variable = event.target.value
+    setVariable(variable)
+    setClim([CLIM_RANGES[variable].min, CLIM_RANGES[variable].max])
+    setColormapName(DEFAULT_COLORMAPS[variable])
+  })
+
   return (
     <>
-      <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
+      <Box sx={{ position: 'absolute', top: 30, right: 40 }}>
         <Flex
           sx={{
             flexDirection: 'column',
@@ -63,9 +68,43 @@ const ParameterControls = ({ getters, setters }) => {
           </Box>
         </Flex>
       </Box>
-      
-      <Box sx={{ position: 'absolute', top: 110, left: 20 }}>
-        <Box sx={{ ...sx.label, mt: [0] }}>Opacity</Box>
+
+      <Box sx={{ position: 'absolute', top: 30, left: 20 }}>
+        <Box sx={{ ...sx.label, mt: [4] }}>Variable</Box>
+        <Select
+          sxSelect={{ bg: 'transparent' }}
+          size='xs'
+          onChange={handleVariableChange}
+          sx={{ mt: [1] }}
+          value={variable}
+        >
+          <option value='tavg'>Temperature</option>
+          <option value='prec'>Precipitation</option>
+        </Select>
+
+        {/* <Box sx={{ ...sx.label, mt: [4] }}>Month</Box>
+        <Slider
+          min={1}
+          max={12}
+          step={1}
+          sx={{ width: '175px', display: 'inline-block' }}
+          value={month}
+          onChange={(e) => setMonth(parseFloat(e.target.value))}
+        />
+        <Badge
+          sx={{
+            bg: 'primary',
+            color: 'background',
+            display: 'inline-block',
+            position: 'relative',
+            left: [3],
+            top: [1],
+          }}
+        >
+          {month.toFixed(0)}
+        </Badge> */}
+
+        {/* <Box sx={{ ...sx.label, mt: [4] }}>Opacity</Box>
         <Slider
           min={0}
           max={1}
@@ -87,9 +126,9 @@ const ParameterControls = ({ getters, setters }) => {
           }}
         >
           {opacity.toFixed(2)}
-        </Badge>
-        
-        <Box sx={sx.label}>Minimum</Box>
+        </Badge> */}
+
+        <Box sx={{...sx.label, mt: [4]}}>Minimum</Box>
         <Slider
           min={CLIM_RANGES[variable].min}
           max={CLIM_RANGES[variable].max}
@@ -112,7 +151,7 @@ const ParameterControls = ({ getters, setters }) => {
         >
           {clim[0].toFixed(0)}
         </Badge>
-        
+
         <Box sx={sx.label}>Maximum</Box>
         <Slider
           min={CLIM_RANGES[variable].min}
@@ -136,30 +175,8 @@ const ParameterControls = ({ getters, setters }) => {
         >
           {clim[1].toFixed(0)}
         </Badge>
-        
-        {/* <Box sx={sx.label}>Month</Box>
-        <Slider
-          min={1}
-          max={12}
-          step={1}
-          sx={{ width: '175px', display: 'inline-block' }}
-          value={month}
-          onChange={(e) => setMonth(parseFloat(e.target.value))}
-        />
-        <Badge
-          sx={{
-            bg: 'primary',
-            color: 'background',
-            display: 'inline-block',
-            position: 'relative',
-            left: [3],
-            top: [1],
-          }}
-        >
-          {month.toFixed(0)}
-        </Badge> */}
 
-        <Box sx={{ ...sx.label, mt: [4] }}>Colormap</Box>
+        <Box sx={{ ...sx.label, mt: [2] }}>Colormap</Box>
         <Select
           sxSelect={{ bg: 'transparent' }}
           size='xs'

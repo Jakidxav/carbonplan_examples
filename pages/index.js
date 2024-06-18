@@ -1,40 +1,41 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { Box, useThemeUI } from 'theme-ui'
-import { Dimmer, Select } from '@carbonplan/components'
-import { Map, Fill, Line } from '@carbonplan/maps'
+import { Dimmer } from '@carbonplan/components'
+import { Map, Fill, Line, Raster, RegionPicker } from '@carbonplan/maps'
+import { useThemedColormap } from '@carbonplan/colormaps'
 
-import TavgRaster from '../components/tavg-raster'
-import PrecipRaster from '../components/precip-raster'
+import ParameterControls from '../components/parameter-controls'
+import RegionControls from '../components/region-controls'
+import Ruler from '../components/ruler'
+import MouseTracker from '../components/mouse-tracker'
 
 const Index = () => {
   const { theme } = useThemeUI()
+
   const [variable, setVariable] = useState('tavg')
+  const [display, setDisplay] = useState(true)
+  const [opacity, setOpacity] = useState(1)
+  const [colormapName, setColormapName] = useState('warm')
+  const colormap = useThemedColormap(colormapName)
+  const [clim, setClim] = useState([-20, 30])
+  const [showRegionPicker, setShowRegionPicker] = useState(false)
+  const [regionData, setRegionData] = useState({ loading: true })
 
-  const sx = {
-    label: {
-      fontFamily: 'mono',
-      letterSpacing: 'mono',
-      textTransform: 'uppercase',
-      fontSize: [1, 1, 1, 2],
-      mt: [3],
-    },
-  }
+  const getters = {
+    display,
+    opacity,
+    variable,
+    clim,
+    colormapName,
+  };
 
-  const handleVariableChange = useCallback((event) => {
-    const variable = event.target.value
-    setVariable(variable)
-    RasterChanger(variable)
-  })
-
-  const RasterChanger = (props) => {
-    let { variable } = props
-    switch (variable) {
-      case "tavg": 
-        return <TavgRaster />
-      case "prec": 
-        return <PrecipRaster />
-    }
-  }
+  const setters = {
+    setDisplay,
+    setOpacity,
+    setVariable,
+    setClim,
+    setColormapName,
+  };
 
   return (
     <>
@@ -45,35 +46,62 @@ const Index = () => {
             source={'https://carbonplan-maps.s3.us-west-2.amazonaws.com/basemaps/ocean'}
             variable={'ocean'}
           />
+
           <Line
             color={theme.rawColors.primary}
             source={'https://carbonplan-maps.s3.us-west-2.amazonaws.com/basemaps/land'}
             variable={'land'}
           />
-          <RasterChanger variable = { variable } />
+
+          {showRegionPicker && (
+            <RegionPicker
+              color={theme.colors.primary}
+              backgroundColor="transparent"
+              fontFamily={theme.fonts.mono}
+              fontSize={'14px'}
+              initialRadius={400}
+              maxRadius={2000}
+            />
+          )
+          }
+
+          <Raster
+            key={variable}
+            display={display}
+            opacity={opacity}
+            source={
+              variable == 'tavg' ? `https://storage.googleapis.com/carbonplan-maps/v2/demo/2d/${variable}` :
+                `https://storage.googleapis.com/carbonplan-share/maps-demo/2d/${variable}-regrid`
+            }
+            variable={variable}
+            clim={clim}
+            colormap={colormap}
+            mode={"texture"}
+            regionOptions={{ setData: setRegionData }}
+          />
+
+          <RegionControls
+            variable={variable}
+            regionData={regionData}
+            showRegionPicker={showRegionPicker}
+            setShowRegionPicker={setShowRegionPicker}
+          />
+
+          <ParameterControls getters={getters} setters={setters} />
+
+          <Ruler />
+
+          <MouseTracker />
+
         </Map>
-                
-        <Box sx={{ position: 'absolute', top: 20, left: 20 }}>
-        <Box sx={{ ...sx.label, mt: [0] }}>Variable</Box>
-          <Select
-            sxSelect={{ bg: 'transparent' }}
-            size='xs'
-            onChange={ handleVariableChange }
-            sx={{ mt: [1] }}
-            value={ variable }
-          >
-            <option value='tavg'>Temperature</option>
-            <option value='prec'>Precipitation</option>
-          </Select>
-        </Box>
 
         <Dimmer
           sx={{
             display: ['initial', 'initial', 'initial', 'initial'],
             position: 'absolute',
             color: 'primary',
-            right: [13],
-            bottom: [17, 17, 15, 15],
+            right: [35],
+            bottom: [28, 28, 26, 26],
           }}
         />
       </Box>

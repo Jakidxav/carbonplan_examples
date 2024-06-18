@@ -15,7 +15,7 @@ const AverageDisplay = ({ variable, data: { value } }) => {
     const average =
       filteredData.reduce((a, b) => a + b, 0) / filteredData.length
     if (variable === 'prec') {
-      result = `Average: ${average.toFixed(2)}`
+      result = `Average: ${average.toFixed(2)} mm`
     } else {
       result = `Average: ${average.toFixed(2)}ºC`
     }
@@ -38,7 +38,6 @@ const AverageDisplay = ({ variable, data: { value } }) => {
 
 const RegionControls = ({
   variable,
-  month,
   regionData,
   showRegionPicker,
   setShowRegionPicker,
@@ -53,7 +52,7 @@ const RegionControls = ({
         position: 'absolute',
         color: 'primary',
         left: [13],
-        bottom: [17, 17, 15, 15],
+        bottom: [30, 30, 28, 28],
       }}
     >
       <IconButton
@@ -99,7 +98,7 @@ const RegionControls = ({
         </IconButton>
       )}
       {showRegionPicker && (
-        <AverageDisplay data={regionData} variable={variable} month={month} />
+        <AverageDisplay data={regionData} variable={variable} />
       )}
     </Box>
   )
