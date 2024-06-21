@@ -11,7 +11,10 @@ const AverageDisplay = ({ variable, month, data: { value } }) => {
   console.log(value)
 
   let result
-  const filteredData = value[variable][month].filter((d) => d !== 9.969209968386869e36)
+  // const filteredData = value[variable][month].filter((d) => d !== 9.969209968386869e36)
+  // the line below currently purposefully crashes the code, otherwise these values are 
+  // continually calculated and make the website freeze / crash
+  const filteredData = value[variable].filter((d) => d !== 9.969209968386869e36)
   if (filteredData.length === 0) {
     result = 'no data in region'
   } else {
