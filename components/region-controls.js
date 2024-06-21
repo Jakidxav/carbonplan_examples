@@ -2,13 +2,16 @@ import { Box, IconButton } from 'theme-ui'
 import { useRecenterRegion } from '@carbonplan/maps'
 import { XCircle } from '@carbonplan/icons'
 
-const AverageDisplay = ({ variable, data: { value } }) => {
+const AverageDisplay = ({ variable, month, data: { value } }) => {
   if (!value || !value[variable]) {
     return 'loading...'
   }
 
+  console.log("Value: ")
+  console.log(value)
+
   let result
-  const filteredData = value[variable].filter((d) => d !== 9.969209968386869e36)
+  const filteredData = value[variable][month].filter((d) => d !== 9.969209968386869e36)
   if (filteredData.length === 0) {
     result = 'no data in region'
   } else {
@@ -39,6 +42,7 @@ const AverageDisplay = ({ variable, data: { value } }) => {
 const RegionControls = ({
   variable,
   regionData,
+  month,
   showRegionPicker,
   setShowRegionPicker,
 }) => {
@@ -98,7 +102,7 @@ const RegionControls = ({
         </IconButton>
       )}
       {showRegionPicker && (
-        <AverageDisplay data={regionData} variable={variable} />
+        <AverageDisplay data={regionData} month={month} variable={variable} />
       )}
     </Box>
   )

@@ -19,6 +19,13 @@ const MouseTracker = () => {
   const { map } = useMapbox()
   const [xy, setXY] = useState([0, 0])
   const [latLon, setLatLon] = useState([0, 0])
+
+  // console.log("Map: ")
+  // console.log(map)
+  // var layers = map.getStyle().layers;
+  // console.log("Layers: ")
+  // console.log(layers)
+  // console.log()
   
   map.on('mousemove', (e) => {
     setXY([e.point.x, e.point.y])

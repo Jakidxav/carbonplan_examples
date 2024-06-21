@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Box, useThemeUI } from 'theme-ui'
 import { Dimmer } from '@carbonplan/components'
 import { Map, Fill, Line, Raster, RegionPicker } from '@carbonplan/maps'
@@ -7,12 +7,13 @@ import { useThemedColormap } from '@carbonplan/colormaps'
 import ParameterControls from '../components/parameter-controls'
 import RegionControls from '../components/region-controls'
 import Ruler from '../components/ruler'
-import MouseTracker from '../components/mouse-tracker'
+// import MouseTracker from '../components/mouse-tracker'
 
 const Index = () => {
   const { theme } = useThemeUI()
 
   const [variable, setVariable] = useState('tavg')
+  const [month, setMonth] = useState(1)
   const [display, setDisplay] = useState(true)
   const [opacity, setOpacity] = useState(1)
   const [colormapName, setColormapName] = useState('warm')
@@ -21,12 +22,15 @@ const Index = () => {
   const [showRegionPicker, setShowRegionPicker] = useState(false)
   const [regionData, setRegionData] = useState({ loading: true })
 
+  const mapReference = useRef(null)
+
   const getters = {
     display,
     opacity,
     variable,
     clim,
     colormapName,
+    month,
   };
 
   const setters = {
@@ -35,12 +39,33 @@ const Index = () => {
     setVariable,
     setClim,
     setColormapName,
+    setMonth,
   };
+
+  useEffect(() => {
+    if (!mapReference.current) return
+    const mapContainer = new mapboxgl.Map({
+      container: mapReference.current,
+      attributionControl: false,
+      zoom: 2,
+    })
+    mapReference.current = mapContainer
+
+    mapReference.current.on('load', () => {
+      setReady(true)
+    })
+
+    return function cleanup() {
+      mapReference.current = null
+      setReady(null)
+    }
+  }, [])
 
   return (
     <>
       <Box sx={{ position: 'absolute', top: 0, bottom: 0, width: '100%' }}>
-        <Map zoom={2} center={[0, 0]}>
+        <Map style={{ width: '100%', height: '100%',}} ref={mapReference} zoom={2} center={[0, 0]} >
+
           <Fill
             color={theme.rawColors.background}
             source={'https://carbonplan-maps.s3.us-west-2.amazonaws.com/basemaps/ocean'}
@@ -66,23 +91,32 @@ const Index = () => {
           }
 
           <Raster
+            id={'raster-layer'}
             key={variable}
             display={display}
             opacity={opacity}
-            source={
-              variable == 'tavg' ? `https://storage.googleapis.com/carbonplan-maps/v2/demo/2d/${variable}` :
-                `https://storage.googleapis.com/carbonplan-share/maps-demo/2d/${variable}-regrid`
-            }
+            // source={
+            //   variable == 'tavg' ? `https://storage.googleapis.com/carbonplan-maps/v2/demo/2d/${variable}` :
+            //     `https://storage.googleapis.com/carbonplan-share/maps-demo/2d/${variable}-regrid`
+            // }
+            source={'https://storage.googleapis.com/carbonplan-maps/v2/demo/3d/tavg-month'}
             variable={variable}
             clim={clim}
             colormap={colormap}
             mode={"texture"}
-            regionOptions={{ setData: setRegionData }}
+            selector={{month}}
+            // frag={`
+            //   float average = (month_1 + month_2) / 2.0
+            //   float rescaled = (average - clim.x)/(clim.y - clim.x);
+            //   gl_FragColor = texture2D(colormap, vec2(rescaled, 1.0));
+            //   `}
+            regionOptions={{ setData: setRegionData, selector:{month:[1, 2]} }}
           />
 
           <RegionControls
             variable={variable}
             regionData={regionData}
+            month={month}
             showRegionPicker={showRegionPicker}
             setShowRegionPicker={setShowRegionPicker}
           />
@@ -91,7 +125,7 @@ const Index = () => {
 
           <Ruler />
 
-          <MouseTracker />
+          {/* <MouseTracker /> */}
 
         </Map>
 

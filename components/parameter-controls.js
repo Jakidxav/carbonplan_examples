@@ -29,7 +29,8 @@ const ParameterControls = ({ getters, setters }) => {
     opacity,
     variable,
     clim,
-    colormapName
+    colormapName,
+    month,
   } = getters
 
   const {
@@ -38,6 +39,7 @@ const ParameterControls = ({ getters, setters }) => {
     setVariable,
     setClim,
     setColormapName,
+    setMonth,
   } = setters
 
   const handleVariableChange = useCallback((event) => {
@@ -79,10 +81,10 @@ const ParameterControls = ({ getters, setters }) => {
           value={variable}
         >
           <option value='tavg'>Temperature</option>
-          <option value='prec'>Precipitation</option>
+          {/* <option value='prec'>Precipitation</option> */}
         </Select>
 
-        {/* <Box sx={{ ...sx.label, mt: [4] }}>Month</Box>
+        <Box sx={{ ...sx.label, mt: [4] }}>Month</Box>
         <Slider
           min={1}
           max={12}
@@ -102,7 +104,7 @@ const ParameterControls = ({ getters, setters }) => {
           }}
         >
           {month.toFixed(0)}
-        </Badge> */}
+        </Badge>
 
         {/* <Box sx={{ ...sx.label, mt: [4] }}>Opacity</Box>
         <Slider
