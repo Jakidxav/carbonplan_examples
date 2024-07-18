@@ -1,10 +1,26 @@
+const isDev =
+  process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'
+
 const path = require('path')
 
+//// MODULE ALIASES ////
+const resolve = (p) => path.resolve(__dirname, p)
+
+const aliases = {
+  '@components': resolve('./components'),
+  '@constants': resolve('./constants'),
+  '@utils': resolve('./utils'),
+}
+
+//// EXPORT ////
 module.exports = {
+  assetPrefix: isDev ? '' : 'https://forest-carbon.carbonplan.org',
   webpack: (config, options) => {
-    if (options.isServer) {
-      config.externals = ['react', 'theme-ui', ...config.externals]
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      ...aliases,
     }
+
     config.resolve.alias['react'] = path.resolve(
       __dirname,
       '.',
@@ -17,6 +33,7 @@ module.exports = {
       'node_modules',
       'theme-ui'
     )
+
     return config
   },
 }

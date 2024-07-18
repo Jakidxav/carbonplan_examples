@@ -1,31 +1,37 @@
+import { useMemo } from 'react'
 import { Box, IconButton } from 'theme-ui'
 import { useRecenterRegion } from '@carbonplan/maps'
 import { XCircle } from '@carbonplan/icons'
 
-const AverageDisplay = ({ variable, month, data: { value } }) => {
-  if (!value || !value[variable]) {
-    return 'loading...'
+const AverageDisplay = ({ variable, month, data }) => {
+  if (!data || !data[variable]) {
+      return 'loading...'
   }
-
-  console.log("Value: ")
-  console.log(value)
-
+  
   let result
-  // const filteredData = value[variable][month].filter((d) => d !== 9.969209968386869e36)
-  // the line below currently purposefully crashes the code, otherwise these values are 
-  // continually calculated and make the website freeze / crash
-  const filteredData = value[variable].filter((d) => d !== 9.969209968386869e36)
-  if (filteredData.length === 0) {
+
+  const chartData = useMemo(() => {
+    let lineData = []
+    if (!data) return []
+    data.coordinates.month.forEach((m) => {
+      let filteredData = data[variable][m].filter((d) => d !== 9.969209968386869e36)
+      const average = filteredData.reduce((a, b) => a + b, 0) / filteredData.length
+      lineData.push([m, average])
+    })
+    return lineData
+  }, [data])
+
+  let avg = chartData[month - 1][1]
+  if (isNaN(avg)) {
     result = 'no data in region'
   } else {
-    const average =
-      filteredData.reduce((a, b) => a + b, 0) / filteredData.length
-    if (variable === 'prec') {
-      result = `Average: ${average.toFixed(2)} mm`
-    } else {
-      result = `Average: ${average.toFixed(2)}ºC`
-    }
+    result = `Average: ${avg.toFixed(2)}ºC`
   }
+
+
+  console.log("Region data: ", data)
+  console.log("Chart data: ", chartData)
+  console.log()
 
   return (
     <Box

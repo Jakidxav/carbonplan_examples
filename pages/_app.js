@@ -1,4 +1,4 @@
-import { ThemeProvider } from 'theme-ui'
+import { ThemeUIProvider } from 'theme-ui'
 import '@carbonplan/components/fonts.css'
 import '@carbonplan/components/globals.css'
 import '@carbonplan/maps/mapbox.css'
@@ -6,9 +6,9 @@ import theme from '@carbonplan/theme'
 
 const App = ({ Component, pageProps }) => {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeUIProvider theme={theme}>
       <Component {...pageProps} />
-    </ThemeProvider>
+    </ThemeUIProvider>
   )
 }
 

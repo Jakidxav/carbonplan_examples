@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, useThemeUI } from 'theme-ui'
 import { Dimmer } from '@carbonplan/components'
 import { Map, Fill, Line, Raster, RegionPicker } from '@carbonplan/maps'
@@ -21,7 +21,7 @@ const Index = () => {
   const [clim, setClim] = useState([-20, 30])
   const [showRegionPicker, setShowRegionPicker] = useState(false)
   const [regionData, setRegionData] = useState({ loading: true })
-
+  const [regionLoadingData, setRegionDataLoading] = useState(true)
   const mapReference = useRef(null)
 
   const getters = {
@@ -61,10 +61,23 @@ const Index = () => {
     }
   }, [])
 
+  const handleRegionData = useCallback(
+    (data) => {
+      if (data.value === null) {
+        setRegionDataLoading(true)
+      } else if (data.value[variable]) {
+        // console.log(data)
+        setRegionData(data.value)
+        setRegionDataLoading(false)
+      }
+    },
+    [setRegionData, setRegionDataLoading]
+  )
+
   return (
     <>
       <Box sx={{ position: 'absolute', top: 0, bottom: 0, width: '100%' }}>
-        <Map style={{ width: '100%', height: '100%',}} ref={mapReference} zoom={2} center={[0, 0]} >
+        <Map style={{ width: '100%', height: '100%', }} ref={mapReference} zoom={2} center={[0, 0]} >
 
           <Fill
             color={theme.rawColors.background}
@@ -93,6 +106,7 @@ const Index = () => {
           <Raster
             id={'raster-layer'}
             key={variable}
+            // key={`${variable}-${month}`}
             display={display}
             opacity={opacity}
             // source={
@@ -104,19 +118,23 @@ const Index = () => {
             clim={clim}
             colormap={colormap}
             mode={"texture"}
-            selector={{month}}
+            dimensions={['month', 'y', 'x']}
+            // setRegionData={setRegionData}
+            // selector={{ month: [1, 2, 3, 4,] }}
+            selector={{ month }}
+            // selector={{month: 2}}
             // frag={`
-            //   float average = (month_1 + month_2) / 2.0
-            //   float rescaled = (average - clim.x)/(clim.y - clim.x);
+            //   float rescaled = (month_2 - clim.x)/(clim.y - clim.x);
             //   gl_FragColor = texture2D(colormap, vec2(rescaled, 1.0));
             //   `}
-            regionOptions={{ setData: setRegionData, selector:{month:[1, 2]} }}
+            // regionOptions={{ setData: setRegionData, selector: { month: [1, 2, 3, 4] } }}
+          regionOptions={{ setData: handleRegionData, selector: {} }}
           />
-
+ 
           <RegionControls
             variable={variable}
-            regionData={regionData}
             month={month}
+            regionData={regionData}
             showRegionPicker={showRegionPicker}
             setShowRegionPicker={setShowRegionPicker}
           />
@@ -138,6 +156,7 @@ const Index = () => {
             bottom: [28, 28, 26, 26],
           }}
         />
+
       </Box>
     </>
   )

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Box, Flex } from 'theme-ui'
-import { Slider, Badge, Toggle, Select, Link } from '@carbonplan/components'
+import { Slider, Badge, Toggle, Select } from '@carbonplan/components'
 import { colormaps } from '@carbonplan/colormaps'
 
 const sx = {
